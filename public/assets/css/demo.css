@@ -102,3 +102,15 @@
 .category-label{
 	width: 4rem;
 }
+.flex{
+	display: flex;
+}
+.items-center{
+	align-items: center;
+}
+.mb-o{
+	margin-bottom: 0px;
+}
+.mb-2{
+	margin-bottom: 2px;
+}
