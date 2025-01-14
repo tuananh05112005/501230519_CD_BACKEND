@@ -1,8 +1,10 @@
 <div class="content">
   <div class="container-fluid">
     <div class="flex itesm-center justify-content-between mb-2">
-        <h4 class="page-title mb-0">Danh sách loại sản phẩm</h4>
-        <a class="badge badge-default" href="categories/create">Tạo loại sản phẩm</a>
+      <h4 class="page-title mb-0">Danh sách loại sản phẩm</h4>
+      <a class="badge badge-default" href="categories/create"
+        >Tạo loại sản phẩm</a
+      >
     </div>
     <div class="card">
       <div class="card-body">
@@ -13,21 +15,36 @@
               <th scope="col">Image</th>
               <th scope="col">Code</th>
               <th scope="col">Name</th>
+              <th scope="col">Action</th>
             </tr>
           </thead>
           <% categories.forEach(function(category, index){ %>
-            <tr>
-                <td><%=index+1%></td>
-                <td>
-                    <img src="<%=category.image%>" alt="iage" class="category-label" /> 
-                </td>
-                <td><%=category.code%></td>
-                <td><%=category.name%></td>
-              </tr>
+          <tr>
+            <td><%=index+1%></td>
+            <td>
+              <img
+                src="<%=category.image%>"
+                alt="iage"
+                class="category-label"
+              />
+            </td>
+            <td><%=category.code%></td>
+            <td><%=category.name%></td>
+            <td>
+              <a
+                class="btn btn-primary btn-sm"
+                href="/categories/update/<%=category._id%>"
+                >Sửa</a
+              >
+              <a
+              class="btn btn-danger btn-sm"
+              href="/categories/delete/<%=category._id%>"
+              >Xóa</a
+            >
+            </td>
+          </tr>
           <% }); %>
-          <tbody>
-          
-          </tbody>
+          <tbody></tbody>
         </table>
       </div>
     </div>
