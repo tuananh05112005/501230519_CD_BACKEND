@@ -22,4 +22,4 @@ router.post("/update/", updateCategory)
 router.get("/delete/:id", renderPageDeleteCategory)
 router.post("/delete/", deleteCategory)
 
-export default router;
+export default router; 
