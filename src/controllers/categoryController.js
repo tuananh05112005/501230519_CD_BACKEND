@@ -4,6 +4,10 @@ import { removeVietnameseAccents } from "../common/index.js"
 
 export async function listCategory(req, res){
     const search = req.query?.search
+    const pageSize = !!req.query?.pageSize ? parseInt(req.query.pageSize): 5
+    const page = !!req.query?.page  ? parseInt(req.query.page): 1
+    const skip = (page-1)*pageSize
+    console.log({pageSize, skip})
     let filters = {
         deletedAt: null
     }
@@ -11,10 +15,16 @@ export async function listCategory(req, res){
        filters.searchString = {$regex:removeVietnameseAccents (search) , $options: 'i'}
     }
     try{
-    const categories =  await CategoryModel.find(filters)
+    const conutCategories =  await CategoryModel.countDocuments(filters)
+    const categories =  await CategoryModel.find(filters).skip((page-1)*pageSize).limit(pageSize)
+    // res.json(categories)
+    console.log(page)
     res.render("pages/categories/list", {
         title: "Categories",
         categories: categories,
+        countPagination: Math.ceil(conutCategories/pageSize),
+        pageSize,
+        page, 
     })
 } catch(error){
     console.log(error)
