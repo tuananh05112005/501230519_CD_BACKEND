@@ -2,34 +2,55 @@ import CategoryModel from "../models/categoryModel.js"
 import { ObjectId } from "mongodb"
 import { removeVietnameseAccents } from "../common/index.js"
 
-export async function listCategory(req, res){
-    const search = req.query?.search
-    const pageSize = !!req.query?.pageSize ? parseInt(req.query.pageSize): 5
-    const page = !!req.query?.page  ? parseInt(req.query.page): 1
-    const skip = (page-1)*pageSize
-    console.log({pageSize, skip})
+const sortObjects = [
+    {code: "name_DESC",name: "Tên giảm dần"},
+    {code: "name_ASC",name: "Tên tăng dần"},
+    {code: "code_DESC",name: "Mã giảm dần"},
+    {code: "code_ASC",name: "Mã tăng dần"}
+]
+
+export async function listCategory(req, res) {
+    const search = req.query?.search?.trim();
+    const pageSize = !!req.query?.pageSize ? parseInt(req.query.pageSize) : 5;
+    const page = !!req.query?.page ? parseInt(req.query.page) : 1;
+    const skip = (page - 1) * pageSize;
+    const sortQuery = req.query?.sort || "code_DESC";
+    const [sortField, sortOrder] = sortQuery.split("_")
+    const sort ={
+        [sortField]:sortOrder === "DESC" ?  -1 : 1
+    }
+
+
     let filters = {
-        deletedAt: null
+        deletedAt: null, 
+    };
+
+    if (search && search.length > 0) {
+        const normalizedSearch = removeVietnameseAccents(search); 
+        filters.searchString = { $regex: normalizedSearch, $options: 'i' }; 
     }
-    if(search && search.length > 0){
-       filters.searchString = {$regex:removeVietnameseAccents (search) , $options: 'i'}
+
+    try {
+        const countCategories = await CategoryModel.countDocuments(filters); 
+        const categories = await CategoryModel.find(filters)
+        .sort(sort)
+            .skip(skip)
+            .limit(pageSize);
+
+        res.render("pages/categories/list", {
+            title: "Categories",
+            categories: categories,
+            countPagination: Math.ceil(countCategories / pageSize),
+            pageSize,
+            page,
+            sort,
+            sortObjects
+        });
+    } catch (error) {
+        console.log(error);
+        res.send("Hiện tại không có sản phẩm nào.");
     }
-    try{
-    const conutCategories =  await CategoryModel.countDocuments(filters)
-    const categories =  await CategoryModel.find(filters).skip((page-1)*pageSize).limit(pageSize)
-    // res.json(categories)
-    console.log(page)
-    res.render("pages/categories/list", {
-        title: "Categories",
-        categories: categories,
-        countPagination: Math.ceil(conutCategories/pageSize),
-        pageSize,
-        page, 
-    })
-} catch(error){
-    console.log(error)
-    res.send("Hiện tại không có sản phẩm nào")
-}}
+}
 
 
 export async function renderPageCreateCategory(req, res){
